@@ -1,0 +1,13 @@
+{
+  "name": "font-previewer",
+  "version": "1.0.0",
+  "description": "AI-powered font previewer using Google Fonts",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel"
+  },
+  "keywords": ["fonts", "google-fonts", "ai", "typography"],
+  "author": "",
+  "license": "MIT"
+}

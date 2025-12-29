@@ -29,22 +29,60 @@ Perfect for finding the ideal font for:
 4. Browse through 30 AI-suggested fonts displaying your text
 5. Find your favorite!
 
-## GitHub Pages Deployment
+## Deployment (Works on Mobile!)
 
-This is a static HTML page ready for GitHub Pages:
+This app uses a serverless backend to avoid CORS issues on mobile browsers. Deploy to Vercel (free):
 
-1. Push this repository to GitHub
-2. Go to repository Settings → Pages
-3. Select the branch and save
-4. Your font previewer will be live!
+### Option 1: Deploy to Vercel (Recommended - 2 minutes)
+
+1. **Install Vercel CLI** (if you haven't already):
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Deploy from this directory**:
+   ```bash
+   vercel
+   ```
+
+3. **Follow the prompts**:
+   - Login to your Vercel account
+   - Set up project settings (accept defaults)
+   - Your app will be live in seconds!
+
+4. **Get your URL**: Vercel will give you a URL like `https://font-previewer-xyz.vercel.app`
+
+5. **Use on any device**: Open the URL on your iPhone, Android, or any browser!
+
+### Option 2: Deploy via Vercel Website (No CLI needed)
+
+1. Go to [vercel.com](https://vercel.com)
+2. Click "Import Project"
+3. Connect your GitHub repo
+4. Vercel will auto-detect settings
+5. Click "Deploy" - done!
+
+### After Deployment
+
+1. Open your Vercel URL on your phone
+2. Click "⚙️ API Settings"
+3. Paste your Anthropic API key: `sk-ant-api03-...`
+4. Click "💾 Save Settings"
+5. Enter text and style keywords
+6. Generate fonts!
 
 ## Technology
 
-- Pure HTML/CSS/JavaScript (no build process needed)
+- HTML/CSS/JavaScript frontend
+- Serverless backend (Vercel Functions) to handle API calls
 - Anthropic Claude API for intelligent font suggestions
 - Google Fonts API for font loading and display
-- Responsive grid layout
+- Mobile-friendly with CORS handling
 
-## Privacy
+## Privacy & Security
 
-Your API key is embedded in the client-side code for simplicity. For production use, consider implementing a backend proxy to keep your API key secure.
+Your API key is stored securely:
+- ✅ Keys are stored in your browser's localStorage (never sent to our servers except for API calls)
+- ✅ Backend proxy prevents key exposure in client code
+- ✅ CORS protection works on all mobile browsers
+- ✅ No data is logged or stored on our servers

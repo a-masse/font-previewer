@@ -321,78 +321,27 @@
 
         async function getFontSuggestions(styleDescription) {
             const settings = getApiSettings();
-            const isLiteLLM = settings.endpoint.includes('chat/completions');
 
-            const prompt = `I need exactly 30 Google Fonts that are ${styleDescription}.
-
-Please provide ONLY a JSON array of font names, nothing else. The fonts should be real Google Fonts that exist.
-Format: ["Font Name 1", "Font Name 2", ...]
-
-Mix different styles including serif, sans-serif, display, and handwriting fonts that match the description. Make sure all font names are exact matches to Google Fonts (proper capitalization and spacing).`;
-
-            let requestBody, headers;
-
-            if (isLiteLLM) {
-                // LiteLLM/OpenAI compatible format
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${settings.apiKey}`
-                };
-                requestBody = {
-                    model: 'claude-3-5-sonnet-20241022',
-                    messages: [{
-                        role: 'user',
-                        content: prompt
-                    }],
-                    max_tokens: 1024
-                };
-            } else {
-                // Native Anthropic API format
-                headers = {
-                    'Content-Type': 'application/json',
-                    'x-api-key': settings.apiKey,
-                    'anthropic-version': '2023-06-01'
-                };
-                requestBody = {
-                    model: 'claude-3-5-sonnet-20241022',
-                    max_tokens: 1024,
-                    messages: [{
-                        role: 'user',
-                        content: prompt
-                    }]
-                };
-            }
-
-            const response = await fetch(settings.endpoint, {
+            // Use the backend proxy to avoid CORS issues
+            const response = await fetch('/api/fonts', {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify(requestBody)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    apiKey: settings.apiKey,
+                    endpoint: settings.endpoint,
+                    styleDescription: styleDescription
+                })
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API request failed: ${response.statusText}. ${errorText}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Request failed: ${response.statusText}`);
             }
 
             const data = await response.json();
-            let content;
-
-            // Handle different response formats
-            if (isLiteLLM && data.choices && data.choices[0]) {
-                content = data.choices[0].message.content;
-            } else if (data.content && data.content[0]) {
-                content = data.content[0].text;
-            } else {
-                throw new Error('Unexpected API response format');
-            }
-
-            // Extract JSON array from response
-            const jsonMatch = content.match(/\[[\s\S]*\]/);
-            if (!jsonMatch) {
-                throw new Error('Could not parse font list from API response');
-            }
-
-            return JSON.parse(jsonMatch[0]);
+            return data.fonts;
         }
 
         function displayFonts(fontList, text) {

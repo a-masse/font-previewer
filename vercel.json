@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/fonts.js": {
+      "maxDuration": 30
+    }
+  }
+}
