@@ -371,7 +371,7 @@
                 const fontList = await getFontSuggestions(fontStyle || 'versatile and professional');
 
                 // Display the fonts
-                displayFonts(fontList, previewText);
+                await displayFonts(fontList, previewText);
             } catch (error) {
                 resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
             } finally {
@@ -404,8 +404,11 @@
             return data.fonts;
         }
 
-        function displayFonts(fontList, text) {
+        async function displayFonts(fontList, text) {
             const resultsDiv = document.getElementById('results');
+
+            // Show loading message
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Loading fonts from Google...</div>';
 
             // Load Google Fonts using API v2 format (each font needs family= parameter)
             const fontFamilies = fontList.map(font => `family=${encodeURIComponent(font)}`).join('&');
@@ -413,6 +416,9 @@
             link.href = `https://fonts.googleapis.com/css2?${fontFamilies}&display=swap`;
             link.rel = 'stylesheet';
             document.head.appendChild(link);
+
+            // Wait for fonts to load (give it 2 seconds)
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Create font cards
             let html = '<div class="font-grid">';

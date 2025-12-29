@@ -37,12 +37,16 @@ export default async function handler(req, res) {
         const isLiteLLM = endpoint && endpoint.includes('chat/completions');
         const apiEndpoint = endpoint || 'https://api.anthropic.com/v1/messages';
 
-        const prompt = `I need exactly 30 Google Fonts that are ${styleDescription}.
+        const prompt = `You are a Google Fonts expert. I need exactly 30 REAL Google Fonts that are ${styleDescription}.
 
-Please provide ONLY a JSON array of font names, nothing else. The fonts should be real Google Fonts that exist.
-Format: ["Font Name 1", "Font Name 2", ...]
+CRITICAL: Only return fonts that actually exist on fonts.google.com. Do NOT make up font names.
 
-Mix different styles including serif, sans-serif, display, and handwriting fonts that match the description. Make sure all font names are exact matches to Google Fonts (proper capitalization and spacing).`;
+Examples of REAL Google Fonts: Playfair Display, Montserrat, Roboto, Lora, Open Sans, Merriweather, Raleway, Dancing Script, Pacifico, Cinzel, Cormorant Garamond, Bebas Neue, Great Vibes.
+
+Return ONLY a JSON array with exact font names (proper capitalization):
+["Font Name 1", "Font Name 2", ...]
+
+Mix serif, sans-serif, display, and script fonts that match: ${styleDescription}`;
 
         let requestBody, headers;
 
