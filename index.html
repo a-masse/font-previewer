@@ -314,13 +314,16 @@
                 const data = await response.json();
 
                 if (!response.ok) {
+                    const debugInfo = data.debugInfo || {};
                     resultsDiv.innerHTML = `<div class="error">❌ Connection Failed!<br><br>
-                        Status: ${response.status}<br>
-                        Error: ${data.error || 'Unknown error'}<br>
-                        Details: ${data.details || 'No details'}<br><br>
-                        Key length: ${settings.apiKey.length} chars<br>
-                        Key starts with: ${settings.apiKey.substring(0, 20)}...<br>
-                        Endpoint: ${settings.endpoint}</div>`;
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Error:</strong> ${data.error || 'Unknown error'}<br><br>
+                        <strong>🔍 Debug Info:</strong><br>
+                        Key length: ${debugInfo.keyLength || settings.apiKey.length} chars<br>
+                        Key starts with: ${debugInfo.keyPrefix || settings.apiKey.substring(0, 15)}...<br>
+                        Expected format: ${debugInfo.expectedKeyStart || 'sk-ant-api03-'}<br>
+                        Endpoint: ${debugInfo.endpoint || settings.endpoint}<br><br>
+                        ${response.status === 401 ? '<strong>⚠️ Your API key appears to be invalid or expired. Please check:</strong><br>1. Make sure you copied the FULL key<br>2. Check if the key is still active in your Anthropic console<br>3. Verify there are no extra spaces or characters' : ''}</div>`;
                 } else {
                     resultsDiv.innerHTML = `<div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
                         ✅ Connection successful!<br><br>

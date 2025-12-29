@@ -21,10 +21,18 @@ export default async function handler(req, res) {
     try {
         const { apiKey, endpoint, styleDescription } = req.body;
 
-        if (!apiKey) {
+        // Clean the API key - remove any whitespace
+        const cleanApiKey = apiKey ? apiKey.trim().replace(/\s+/g, '') : '';
+
+        if (!cleanApiKey) {
             res.status(400).json({ error: 'API key is required' });
             return;
         }
+
+        // Log debugging info (first 20 chars of key for security)
+        console.log('API Key length:', cleanApiKey.length);
+        console.log('API Key starts with:', cleanApiKey.substring(0, 20));
+        console.log('Endpoint:', endpoint);
 
         const isLiteLLM = endpoint && endpoint.includes('chat/completions');
         const apiEndpoint = endpoint || 'https://api.anthropic.com/v1/messages';
@@ -41,7 +49,7 @@ Mix different styles including serif, sans-serif, display, and handwriting fonts
         if (isLiteLLM) {
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': `Bearer ${cleanApiKey}`
             };
             requestBody = {
                 model: 'claude-3-5-sonnet-20241022',
@@ -51,7 +59,7 @@ Mix different styles including serif, sans-serif, display, and handwriting fonts
         } else {
             headers = {
                 'Content-Type': 'application/json',
-                'x-api-key': apiKey,
+                'x-api-key': cleanApiKey,
                 'anthropic-version': '2023-06-01'
             };
             requestBody = {
@@ -69,9 +77,16 @@ Mix different styles including serif, sans-serif, display, and handwriting fonts
 
         if (!response.ok) {
             const errorText = await response.text();
+            console.error('API Error Response:', errorText);
             res.status(response.status).json({
                 error: `API request failed: ${response.statusText}`,
-                details: errorText
+                details: errorText,
+                debugInfo: {
+                    keyLength: cleanApiKey.length,
+                    keyPrefix: cleanApiKey.substring(0, 15),
+                    endpoint: apiEndpoint,
+                    expectedKeyStart: 'sk-ant-api03-'
+                }
             });
             return;
         }
