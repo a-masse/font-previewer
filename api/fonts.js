@@ -52,7 +52,7 @@ Mix different styles including serif, sans-serif, display, and handwriting fonts
                 'Authorization': `Bearer ${cleanApiKey}`
             };
             requestBody = {
-                model: 'claude-3-5-sonnet-20241022',
+                model: 'claude-haiku-4-5-20251001',
                 messages: [{ role: 'user', content: prompt }],
                 max_tokens: 1024
             };
@@ -63,7 +63,7 @@ Mix different styles including serif, sans-serif, display, and handwriting fonts
                 'anthropic-version': '2023-06-01'
             };
             requestBody = {
-                model: 'claude-3-5-sonnet-20241022',
+                model: 'claude-haiku-4-5-20251001',
                 max_tokens: 1024,
                 messages: [{ role: 'user', content: prompt }]
             };
