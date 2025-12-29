@@ -407,10 +407,10 @@
         function displayFonts(fontList, text) {
             const resultsDiv = document.getElementById('results');
 
-            // Load Google Fonts
-            const fontFamilies = fontList.map(font => font.replace(/ /g, '+')).join('|');
+            // Load Google Fonts using API v2 format (each font needs family= parameter)
+            const fontFamilies = fontList.map(font => `family=${encodeURIComponent(font)}`).join('&');
             const link = document.createElement('link');
-            link.href = `https://fonts.googleapis.com/css2?family=${fontFamilies}&display=swap`;
+            link.href = `https://fonts.googleapis.com/css2?${fontFamilies}&display=swap`;
             link.rel = 'stylesheet';
             document.head.appendChild(link);
 
@@ -420,7 +420,7 @@
                 html += `
                     <div class="font-card">
                         <div class="font-name">${font}</div>
-                        <div class="font-preview" style="font-family: '${font}', serif;">${text}</div>
+                        <div class="font-preview" style="font-family: '${font}', sans-serif;">${text}</div>
                     </div>
                 `;
             });
