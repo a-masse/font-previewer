@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Previewer - Find Your Perfect Font</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .font-card {
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .font-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .font-name {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .font-preview {
+            font-size: 2em;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        .info-text {
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 10px;
+            border: 2px solid #ffc107;
+        }
+
+        .settings-toggle {
+            background: #ffc107;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .settings-content {
+            display: none;
+        }
+
+        .settings-content.active {
+            display: block;
+        }
+
+        .settings-help {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Font Previewer</h1>
+        <p class="subtitle">Find the perfect font for your project</p>
+
+        <div class="settings-section">
+            <button class="settings-toggle" onclick="toggleSettings()">⚙️ API Settings (Optional)</button>
+            <div class="settings-content" id="settingsContent">
+                <label for="apiKey">Your API Key:</label>
+                <input type="password" id="apiKey" placeholder="sk-ant-api03-... or your LiteLLM key">
+                <p class="settings-help">Leave empty to use the default demo key. Your key is stored locally in your browser.</p>
+
+                <label for="apiEndpoint">API Endpoint:</label>
+                <input type="text" id="apiEndpoint" placeholder="https://api.anthropic.com/v1/messages" value="https://api.anthropic.com/v1/messages">
+                <p class="settings-help">For LiteLLM, use your endpoint URL (e.g., https://your-litellm-server.com/v1/chat/completions)</p>
+
+                <button onclick="saveSettings()">💾 Save Settings</button>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <label for="previewText">Text to Preview:</label>
+            <input type="text" id="previewText" placeholder="Enter your text (e.g., Hello World, JDM, Logo Text)" value="">
+
+            <label for="fontStyle">Describe the style you're looking for:</label>
+            <input type="text" id="fontStyle" placeholder="e.g., elegant, modern, classic, bold, playful, professional" value="">
+
+            <button id="generateBtn" onclick="generateFonts()">✨ Generate Font Previews</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const DEFAULT_API_KEY = ''; // Users should add their own key via settings
+        const DEFAULT_ENDPOINT = 'https://api.anthropic.com/v1/messages';
+
+        // Load saved settings on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedKey = localStorage.getItem('apiKey');
+            const savedEndpoint = localStorage.getItem('apiEndpoint');
+
+            if (savedKey) {
+                document.getElementById('apiKey').value = savedKey;
+            }
+            if (savedEndpoint) {
+                document.getElementById('apiEndpoint').value = savedEndpoint;
+            }
+        });
+
+        function toggleSettings() {
+            const content = document.getElementById('settingsContent');
+            content.classList.toggle('active');
+        }
+
+        function saveSettings() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiEndpoint = document.getElementById('apiEndpoint').value.trim();
+
+            if (apiKey) {
+                localStorage.setItem('apiKey', apiKey);
+            } else {
+                localStorage.removeItem('apiKey');
+            }
+
+            if (apiEndpoint) {
+                localStorage.setItem('apiEndpoint', apiEndpoint);
+            } else {
+                localStorage.setItem('apiEndpoint', DEFAULT_ENDPOINT);
+            }
+
+            alert('Settings saved! Your preferences are stored locally in your browser.');
+        }
+
+        function getApiSettings() {
+            return {
+                apiKey: localStorage.getItem('apiKey') || DEFAULT_API_KEY,
+                endpoint: localStorage.getItem('apiEndpoint') || DEFAULT_ENDPOINT
+            };
+        }
+
+        async function generateFonts() {
+            const previewText = document.getElementById('previewText').value.trim();
+            const fontStyle = document.getElementById('fontStyle').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const generateBtn = document.getElementById('generateBtn');
+
+            if (!previewText) {
+                resultsDiv.innerHTML = '<div class="error">Please enter some text to preview!</div>';
+                return;
+            }
+
+            const settings = getApiSettings();
+            if (!settings.apiKey) {
+                resultsDiv.innerHTML = '<div class="error">⚠️ Please add your API key in the settings above!</div>';
+                return;
+            }
+
+            generateBtn.disabled = true;
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Getting AI-powered font suggestions...</div>';
+
+            try {
+                // Call API to get font suggestions
+                const fontList = await getFontSuggestions(fontStyle || 'versatile and professional');
+
+                // Display the fonts
+                displayFonts(fontList, previewText);
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+
+        async function getFontSuggestions(styleDescription) {
+            const settings = getApiSettings();
+            const isLiteLLM = settings.endpoint.includes('chat/completions');
+
+            const prompt = `I need exactly 30 Google Fonts that are ${styleDescription}.
+
+Please provide ONLY a JSON array of font names, nothing else. The fonts should be real Google Fonts that exist.
+Format: ["Font Name 1", "Font Name 2", ...]
+
+Mix different styles including serif, sans-serif, display, and handwriting fonts that match the description. Make sure all font names are exact matches to Google Fonts (proper capitalization and spacing).`;
+
+            let requestBody, headers;
+
+            if (isLiteLLM) {
+                // LiteLLM/OpenAI compatible format
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${settings.apiKey}`
+                };
+                requestBody = {
+                    model: 'claude-3-5-sonnet-20241022',
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }],
+                    max_tokens: 1024
+                };
+            } else {
+                // Native Anthropic API format
+                headers = {
+                    'Content-Type': 'application/json',
+                    'x-api-key': settings.apiKey,
+                    'anthropic-version': '2023-06-01'
+                };
+                requestBody = {
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 1024,
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }]
+                };
+            }
+
+            const response = await fetch(settings.endpoint, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API request failed: ${response.statusText}. ${errorText}`);
+            }
+
+            const data = await response.json();
+            let content;
+
+            // Handle different response formats
+            if (isLiteLLM && data.choices && data.choices[0]) {
+                content = data.choices[0].message.content;
+            } else if (data.content && data.content[0]) {
+                content = data.content[0].text;
+            } else {
+                throw new Error('Unexpected API response format');
+            }
+
+            // Extract JSON array from response
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            if (!jsonMatch) {
+                throw new Error('Could not parse font list from API response');
+            }
+
+            return JSON.parse(jsonMatch[0]);
+        }
+
+        function displayFonts(fontList, text) {
+            const resultsDiv = document.getElementById('results');
+
+            // Load Google Fonts
+            const fontFamilies = fontList.map(font => font.replace(/ /g, '+')).join('|');
+            const link = document.createElement('link');
+            link.href = `https://fonts.googleapis.com/css2?family=${fontFamilies}&display=swap`;
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+
+            // Create font cards
+            let html = '<div class="font-grid">';
+            fontList.forEach(font => {
+                html += `
+                    <div class="font-card">
+                        <div class="font-name">${font}</div>
+                        <div class="font-preview" style="font-family: '${font}', serif;">${text}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            html += '<p class="info-text">💡 Tip: Hover over each card to highlight. Try different keywords like "bold", "elegant", "vintage", or "modern" to get different font suggestions!</p>';
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // Allow Enter key to trigger generation
+        document.getElementById('previewText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateFonts();
+        });
+        document.getElementById('fontStyle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateFonts();
+        });
+    </script>
+</body>
+</html>
